@@ -7,15 +7,17 @@ import FollowButton from "@/components/FollowButton";
 import { UserPlus, Users, FileText } from "lucide-react";
 import Link from "next/link";
 
-export default async function ProfilePage({ params }: { params: { id: string } }) {
+export default async function ProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const currentUser = await getCurrentUser();
 
   if (!currentUser) {
     redirect("/auth/login");
   }
 
+  const { id } = await params;
+
   const profileUser = await prisma.user.findUnique({
-    where: { id: params.id },
+    where: { id },
     select: {
       id: true,
       name: true,
@@ -44,8 +46,8 @@ export default async function ProfilePage({ params }: { params: { id: string } }
 
   // Get follow stats
   const [followersCount, followingCount] = await Promise.all([
-    prisma.follow.count({ where: { followingId: params.id } }),
-    prisma.follow.count({ where: { followerId: params.id } }),
+    prisma.follow.count({ where: { followingId: id } }),
+    prisma.follow.count({ where: { followerId: id } }),
   ]);
 
   // Check if current user follows this profile
@@ -53,7 +55,7 @@ export default async function ProfilePage({ params }: { params: { id: string } }
     where: {
       followerId_followingId: {
         followerId: currentUser.id,
-        followingId: params.id,
+        followingId: id,
       },
     },
   });
@@ -61,8 +63,8 @@ export default async function ProfilePage({ params }: { params: { id: string } }
   // Get user's posts
   const posts = await prisma.post.findMany({
     where: {
-      authorId: params.id,
-      visibility: currentUser.id === params.id ? undefined : "PUBLIC",
+      authorId: id,
+      visibility: currentUser.id === id ? undefined : "PUBLIC",
     },
     include: {
       author: {
@@ -88,7 +90,7 @@ export default async function ProfilePage({ params }: { params: { id: string } }
     orderBy: { createdAt: "desc" },
   });
 
-  const isOwnProfile = currentUser.id === params.id;
+  const isOwnProfile = currentUser.id === id;
 
   return (
     <Layout>
@@ -131,7 +133,7 @@ export default async function ProfilePage({ params }: { params: { id: string } }
                   </div>
                   {!isOwnProfile && (
                     <FollowButton
-                      userId={params.id}
+                      userId={id}
                       isFollowing={!!isFollowing}
                       followersCount={followersCount}
                     />
@@ -150,14 +152,14 @@ export default async function ProfilePage({ params }: { params: { id: string } }
                 )}
                 <div className="flex items-center gap-6 mt-4 text-sm text-zinc-300">
                   <Link
-                    href={`/profile/${params.id}/followers`}
+                    href={`/profile/${id}/followers`}
                     className="flex items-center gap-1 hover:text-white transition"
                   >
                     <Users className="h-4 w-4" />
                     <span className="font-semibold">{followersCount}</span> Followers
                   </Link>
                   <Link
-                    href={`/profile/${params.id}/following`}
+                    href={`/profile/${id}/following`}
                     className="flex items-center gap-1 hover:text-white transition"
                   >
                     <UserPlus className="h-4 w-4" />

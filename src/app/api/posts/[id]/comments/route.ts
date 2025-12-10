@@ -8,13 +8,14 @@ const createCommentSchema = z.object({
   parentCommentId: z.string().optional(),
 });
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const user = await getCurrentUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
     const json = await request.json();
     const parsed = createCommentSchema.safeParse(json);
 
@@ -24,7 +25,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
     const comment = await prisma.comment.create({
       data: {
-        postId: params.id,
+        postId: id,
         authorId: user.id,
         content: parsed.data.content,
         parentCommentId: parsed.data.parentCommentId,
@@ -42,7 +43,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
     // Update post comment count
     await prisma.post.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         commentsCount: { increment: 1 },
       },
@@ -50,7 +51,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
     // Create notification
     const post = await prisma.post.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: { authorId: true },
     });
 
@@ -60,7 +61,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
           userId: post.authorId,
           type: "COMMENT",
           payload: {
-            postId: params.id,
+            postId: id,
             commentId: comment.id,
             from: user.id,
           },
@@ -75,11 +76,12 @@ export async function POST(request: Request, { params }: { params: { id: string 
   }
 }
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const comments = await prisma.comment.findMany({
       where: {
-        postId: params.id,
+        postId: id,
         parentCommentId: null, // Only top-level comments
       },
       include: {

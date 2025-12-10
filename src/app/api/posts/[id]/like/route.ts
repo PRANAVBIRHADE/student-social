@@ -2,18 +2,20 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const user = await getCurrentUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
+
     const existingLike = await prisma.like.findUnique({
       where: {
         userId_postId: {
           userId: user.id,
-          postId: params.id,
+          postId: id,
         },
       },
     });
@@ -26,11 +28,11 @@ export async function POST(request: Request, { params }: { params: { id: string 
       prisma.like.create({
         data: {
           userId: user.id,
-          postId: params.id,
+          postId: id,
         },
       }),
       prisma.post.update({
-        where: { id: params.id },
+        where: { id },
         data: {
           likesCount: { increment: 1 },
         },
@@ -39,7 +41,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
     // Create notification
     const post = await prisma.post.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: { authorId: true },
     });
 
@@ -49,7 +51,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
           userId: post.authorId,
           type: "LIKE",
           payload: {
-            postId: params.id,
+            postId: id,
             from: user.id,
           },
         },
@@ -63,22 +65,24 @@ export async function POST(request: Request, { params }: { params: { id: string 
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const user = await getCurrentUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
+
     await prisma.$transaction([
       prisma.like.deleteMany({
         where: {
           userId: user.id,
-          postId: params.id,
+          postId: id,
         },
       }),
       prisma.post.update({
-        where: { id: params.id },
+        where: { id },
         data: {
           likesCount: { decrement: 1 },
         },
