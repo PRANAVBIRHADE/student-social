@@ -1,26 +1,62 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: 216 20% 6%;
+  --foreground: 213 31% 91%;
+  --glass-gradient: radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.15), transparent 25%), radial-gradient(circle at 80% 0%, rgba(56, 189, 248, 0.14), transparent 30%), radial-gradient(circle at 50% 80%, rgba(251, 146, 60, 0.12), transparent 35%);
+  --card: 218 19% 12%;
+  --card-foreground: 213 31% 91%;
+  --popover: 224 15% 7%;
+  --popover-foreground: 213 31% 91%;
+  --primary: 251 83% 70%;
+  --primary-foreground: 222 47% 11%;
+  --secondary: 219 14% 25%;
+  --secondary-foreground: 213 31% 91%;
+  --muted: 220 15% 20%;
+  --muted-foreground: 213 14% 70%;
+  --accent: 252 88% 78%;
+  --accent-foreground: 222 47% 11%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217 16% 25%;
+  --input: 217 16% 25%;
+  --ring: 251 83% 70%;
+  --radius: 0.9rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.light {
+  --background: 210 20% 98%;
+  --foreground: 224 71% 4%;
+  --card: 0 0% 100%;
+  --card-foreground: 224 71% 4%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 224 71% 4%;
+  --primary: 252 84% 62%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 220 14% 96%;
+  --secondary-foreground: 222 47% 11%;
+  --muted: 220 14% 96%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 252 95% 75%;
+  --accent-foreground: 222 47% 11%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
+  --ring: 252 84% 62%;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  @apply border-border;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  @apply bg-background text-foreground antialiased;
+  background-image: var(--glass-gradient);
+}
+
+.glass-card {
+  @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-glass;
 }

@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Campus Connect — Student Social Platform
 
-## Getting Started
+Modern social platform for students built with Next.js 14 (App Router), Prisma, NextAuth, React Query, Tailwind (shadcn-ready), Framer Motion, UploadThing, and Pusher for realtime.
 
-First, run the development server:
+## Quick start
+1) Install deps: `npm install`
+2) Copy env template: `cp env.example .env` and fill in secrets.
+3) Set `DATABASE_URL` to your Postgres instance (Neon/Supabase/local).
+4) Generate Prisma client: `npm run postinstall` (or `npx prisma generate`).
+5) Push schema: `npm run db:push`
+6) Seed sample data: `npm run db:seed`
+7) Start dev server: `npm run dev`
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Open `http://localhost:3000`.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Scripts
+- `npm run dev` — start Next.js in dev
+- `npm run build` / `npm start` — production build/serve
+- `npm run lint` — eslint
+- `npm run db:push` — sync schema to DB
+- `npm run db:migrate` — create a named migration (local)
+- `npm run db:seed` — seed sample users/posts/messages
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment
+See `env.example` for required variables:
+- `DATABASE_URL` (Postgres connection string)
+- `NEXTAUTH_SECRET`, `NEXTAUTH_URL`
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
+- `UPLOADTHING_SECRET`, `UPLOADTHING_APP_ID`
+- `PUSHER_APP_ID`, `PUSHER_KEY`, `PUSHER_SECRET`, `PUSHER_CLUSTER`, `NEXT_PUBLIC_PUSHER_*`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Database schema (Prisma)
+Models include `User`, `Post` (media + tags + visibility), `Comment` (nested), `Like`, `Follow`, `Message`, `Notification`, plus NextAuth auth tables (`Account`, `Session`, `VerificationToken`).
 
-## Learn More
+## Tech highlights
+- Next.js 14 App Router, React 18/19
+- Tailwind CSS 3 + tailwindcss-animate, Inter font, glassmorphism-ready tokens
+- Prisma with PostgreSQL (generator output in `src/generated/prisma`)
+- Auth via NextAuth (email/password + Google OAuth)
+- Realtime scaffolding with Pusher; uploads via UploadThing
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Maintenance notes
+- Regenerate Prisma client after schema changes: `npx prisma generate`
+- Create migrations for production: `npm run db:migrate`
+- Rerun seeds safely with `npm run db:seed` (data is reset inside the script)
+- Keep `.env` out of version control; use Vercel project envs for deploy.

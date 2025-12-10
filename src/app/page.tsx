@@ -1,65 +1,72 @@
-import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, MessageCircle, Sparkles } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 py-20">
+      <div className="pointer-events-none absolute inset-0 bg-gradient-radial opacity-80" />
+      <div className="relative z-10 max-w-5xl text-center">
+        <div className="mx-auto flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm text-white/80 backdrop-blur">
+          <Sparkles className="h-4 w-4 text-indigo-200" />
+          Student-first social platform
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+        <h1 className="mt-8 text-4xl font-semibold leading-tight text-white sm:text-5xl md:text-6xl">
+          Build your campus community with
+          <span className="bg-gradient-to-r from-indigo-400 via-sky-300 to-amber-200 bg-clip-text text-transparent">
+            {" "}
+            Campus Connect
+          </span>
+        </h1>
+        <p className="mt-6 text-lg text-zinc-200 sm:text-xl">
+          Share notes, find collaborators, chat in real-time, and stay on top of
+          what&apos;s happening across campus with a premium, student-focused experience.
+        </p>
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+          <Link
+            href="/auth/register"
+            className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-500 to-sky-400 px-6 py-3 text-lg font-medium text-white shadow-soft transition hover:scale-[1.01] hover:shadow-glass"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            Get started
+            <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+          </Link>
+          <Link
+            href="/explore"
+            className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 py-3 text-lg font-medium text-white/80 backdrop-blur transition hover:border-white/40 hover:text-white"
           >
-            Documentation
-          </a>
+            Explore feed
+          </Link>
         </div>
-      </main>
-    </div>
+        <div className="mt-12 grid gap-4 text-left sm:grid-cols-3">
+          {[
+            {
+              title: "Realtime chat",
+              icon: <MessageCircle className="h-4 w-4 text-sky-200" />,
+              copy: "1:1 messaging with presence, media, and read receipts.",
+            },
+            {
+              title: "Smart feed",
+              icon: <Sparkles className="h-4 w-4 text-indigo-200" />,
+              copy: "Curated posts from classmates, clubs, and trending tags.",
+            },
+            {
+              title: "Secure & private",
+              icon: <ArrowRight className="h-4 w-4 text-amber-200" />,
+              copy: "Privacy controls, safe reporting, and verified campus accounts.",
+            },
+          ].map((feature) => (
+            <div
+              key={feature.title}
+              className="glass-card relative overflow-hidden rounded-2xl p-5 transition hover:-translate-y-1 hover:shadow-glass"
+            >
+              <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
+                {feature.icon}
+                {feature.title}
+              </div>
+              <p className="text-sm text-zinc-200">{feature.copy}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </main>
   );
 }

@@ -1,0 +1,179 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id @default(cuid())
+  name           String
+  email          String    @unique
+  passwordHash   String?
+  profileImage   String?
+  coverImage     String?
+  college        String?
+  department     String?
+  year           Int?
+  bio            String?   @db.Text
+  emailVerified  DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  accounts       Account[]
+  sessions       Session[]
+  posts          Post[]
+  comments       Comment[]
+  likes          Like[]
+  followers      Follow[]  @relation("followers")
+  following      Follow[]  @relation("following")
+  messagesSent   Message[] @relation("messagesSent")
+  messagesInbox  Message[] @relation("messagesInbox")
+  notifications  Notification[]
+}
+
+model Post {
+  id             String          @id @default(cuid())
+  authorId       String
+  content        String          @db.Text
+  mediaUrls      String[]
+  tags           String[]
+  visibility     PostVisibility  @default(PUBLIC)
+  likesCount     Int             @default(0)
+  commentsCount  Int             @default(0)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  author         User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments       Comment[]
+  likes          Like[]
+}
+
+model Comment {
+  id               String     @id @default(cuid())
+  postId           String
+  authorId         String
+  parentCommentId  String?
+  content          String     @db.Text
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  post             Post       @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author           User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parent           Comment?   @relation("CommentReplies", fields: [parentCommentId], references: [id])
+  replies          Comment[]  @relation("CommentReplies")
+
+  @@index([postId])
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+}
+
+model Follow {
+  id           String   @id @default(cuid())
+  followerId   String
+  followingId  String
+  createdAt    DateTime @default(now())
+
+  follower     User     @relation("followers", fields: [followerId], references: [id], onDelete: Cascade)
+  following    User     @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  fromId    String
+  toId      String
+  content   String   @db.Text
+  mediaUrl  String?
+  seen      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  from      User     @relation("messagesSent", fields: [fromId], references: [id], onDelete: Cascade)
+  to        User     @relation("messagesInbox", fields: [toId], references: [id], onDelete: Cascade)
+
+  @@index([fromId, toId])
+}
+
+model Notification {
+  id        String             @id @default(cuid())
+  userId    String
+  type      NotificationType
+  payload   Json
+  read      Boolean            @default(false)
+  createdAt DateTime           @default(now())
+
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+enum PostVisibility {
+  PUBLIC
+  FOLLOWERS
+}
+
+enum NotificationType {
+  LIKE
+  COMMENT
+  FOLLOW
+  MESSAGE
+}
