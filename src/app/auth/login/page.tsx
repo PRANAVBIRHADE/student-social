@@ -58,10 +58,20 @@ function LoginContent() {
               Account created. You can log in now.
             </p>
           ) : null}
+          {searchParams.get("reset") === "success" ? (
+            <p className="mt-3 rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-3 py-2 text-sm text-emerald-100">
+              Password reset successful. You can log in now.
+            </p>
+          ) : null}
         </div>
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <Field label="Email" name="email" type="email" icon={<Mail className="h-4 w-4" />} required />
           <Field label="Password" name="password" type="password" icon={<Lock className="h-4 w-4" />} required />
+          <div className="flex justify-end">
+            <Link href="/auth/forgot-password" className="text-sm text-sky-200 hover:text-white">
+              Forgot password?
+            </Link>
+          </div>
           {error ? <p className="text-sm text-amber-200">{error}</p> : null}
           <button
             type="submit"

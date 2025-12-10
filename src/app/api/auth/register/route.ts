@@ -41,7 +41,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ user }, { status: 201 });
   } catch (error) {
     console.error("Registration failed", error);
-    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+    const message = error instanceof Error ? error.message : "Unknown error";
+    // Log full error for debugging in Vercel logs
+    if (error instanceof Error) {
+      console.error("Error stack:", error.stack);
+      console.error("Error name:", error.name);
+    }
+    return NextResponse.json(
+      { 
+        error: "Registration failed", 
+        message: message,
+        hint: message.includes("table") || message.includes("relation") || message.includes("does not exist") 
+          ? "Database tables may not exist. Run 'npm run db:push' to create them." 
+          : undefined
+      }, 
+      { status: 500 }
+    );
   }
 }
 
